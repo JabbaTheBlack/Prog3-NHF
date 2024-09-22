@@ -1,6 +1,7 @@
 package main;
 
 import entity.Entity;
+import object.Object_Base;
 
 public class CollisionHandler {
     GamePanel game_panel;
@@ -20,6 +21,7 @@ public class CollisionHandler {
         int bottom_row = bottom_y / this.game_panel.getTileSize();
         int tile_num_1;
         int tile_num_2;
+
         switch (entity.direction) {
             case "up":
                 top_row = (top_y - entity.speed) / this.game_panel.getTileSize();
@@ -54,5 +56,88 @@ public class CollisionHandler {
                 }
         }
 
+    }
+
+    /*
+        Check if player is hitting an object. If so return the index of that tile
+    */
+    public int checkObjectCollision(Entity entity, boolean is_on_object) {
+
+        int idx = Integer.MAX_VALUE;
+
+        for (int i =0 ; i < game_panel.objects.length ; i++ ) {
+            Object_Base object = game_panel.objects[i];
+
+            if(object != null) {
+
+                // Get entity's hit_box position
+                entity.hit_box.x = entity.global_x + entity.hit_box.x;
+                entity.hit_box.y = entity.global_y + entity.hit_box.y;
+
+                // Get object's hit_box position
+                object.hit_box.x = object.x + object.hit_box.x;
+                object.hit_box.y = object.y + object.hit_box.y;
+
+                switch (entity.direction) {
+                    case "up":
+                        entity.hit_box.y -= entity.speed;
+
+                        if(entity.hit_box.intersects(object.hit_box)) {
+                            if(object.collsion == true) {
+                                entity.can_collide = true;
+                            }
+                            if (is_on_object == true) {
+                                idx = i;
+                            }
+                        }
+                        break;
+                    case "down":
+                        entity.hit_box.y += entity.speed;
+
+                        if(entity.hit_box.intersects(object.hit_box)) {
+                            if(object.collsion == true) {
+                                entity.can_collide = true;
+                            }
+                            if (is_on_object == true) {
+                                idx = i;
+                            }
+                        }
+                        break;
+                    case "right":
+                        entity.hit_box.x += entity.speed;
+
+                        if(entity.hit_box.intersects(object.hit_box)) {
+                            if(object.collsion == true) {
+                                entity.can_collide = true;
+                            }
+                            if (is_on_object == true) {
+                                idx = i;
+                            }
+                        }
+                        break;
+                    case "left":
+                        entity.hit_box.x -= entity.speed;
+
+                        if(entity.hit_box.intersects(object.hit_box)) {
+                            if(object.collsion == true) {
+                                entity.can_collide = true;
+                            }
+                            if (is_on_object == true) {
+                                idx = i;
+                            }
+                        }
+                        break;
+
+                }
+                // Reset their values
+                entity.hit_box.x = entity.default_hit_box_x;
+                entity.hit_box.y = entity.default_hit_box_y;
+
+                object.hit_box.x = object.default_hit_box_x;
+                object.hit_box.y = object.default_hit_box_y;
+            }
+        }
+
+        return idx;
     }
 }

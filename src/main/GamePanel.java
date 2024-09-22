@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JPanel;
+
+import object.Object_Base;
 import tiles.Manager;
 
 public class GamePanel extends JPanel implements Runnable {
@@ -25,6 +27,9 @@ public class GamePanel extends JPanel implements Runnable {
     Player player;
     Thread game_thread;
     CollisionHandler collision_handler;
+    ObjectHandler objectHandler = new ObjectHandler(this);
+    Object_Base objects[] = new Object_Base[10];
+
     int FPS;
 
     public GamePanel() {
@@ -78,6 +83,13 @@ public class GamePanel extends JPanel implements Runnable {
         return this.tile_manager;
     }
 
+    public Object_Base[] getObjects() { return objects; }
+
+    public void setUp(){
+
+        objectHandler.setObject();
+    }
+
     public void startGameThread() {
         this.game_thread = new Thread(this);
         this.game_thread.start();
@@ -107,10 +119,23 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void paintComponent(Graphics graphics) {
+
         super.paintComponent(graphics);
         Graphics2D graphics2D = (Graphics2D)graphics;
-        this.tile_manager.draw(graphics2D);
-        this.player.draw(graphics2D);
+
+        // Draw the tiles
+        tile_manager.draw(graphics2D);
+
+        // Draw the keys
+        for(Object_Base object : objects) {
+             if(object != null) {
+                 object.draw(graphics2D, this);
+             }
+        }
+
+        // Draw the player
+        player.draw(graphics2D);
+
         graphics2D.dispose();
     }
 }

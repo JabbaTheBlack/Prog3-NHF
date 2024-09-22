@@ -93,7 +93,9 @@ public class Manager {
             int world_y = row * this.game_panel.getTileSize();
             int screen_x = world_x - this.game_panel.getPlayer().global_x + this.game_panel.getPlayer().on_screen_x;
             int screen_y = world_y - this.game_panel.getPlayer().global_y + this.game_panel.getPlayer().on_screen_y;
+
             if (world_x + this.game_panel.getTileSize() > this.game_panel.getPlayer().global_x - this.game_panel.getPlayer().on_screen_x && world_x - this.game_panel.getTileSize() < this.game_panel.getPlayer().global_x + this.game_panel.getPlayer().on_screen_x && world_y + this.game_panel.getTileSize() > this.game_panel.getPlayer().global_y - this.game_panel.getPlayer().on_screen_y && world_y - this.game_panel.getTileSize() < this.game_panel.getPlayer().global_y + this.game_panel.getPlayer().on_screen_y) {
+
                 graphics2D.drawImage(this.tiles[tile_number].image, screen_x, screen_y, this.game_panel.getTileSize(), this.game_panel.getTileSize(), (ImageObserver)null);
             }
 

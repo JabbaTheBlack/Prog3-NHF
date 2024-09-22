@@ -15,13 +15,18 @@ public class Player extends Entity {
     KeyHandler key_handler;
     public final int on_screen_x;
     public final int on_screen_y;
+    int has_key = 0;
 
     public Player(GamePanel game_panel, KeyHandler key_handler) {
         this.game_panel = game_panel;
         this.key_handler = key_handler;
-        this.on_screen_x = game_panel.getScreenWidth() / 2 - game_panel.getTileSize() / 2;
-        this.on_screen_y = game_panel.getScreenHeight() / 2 - game_panel.getTileSize() / 2;
+        on_screen_x = game_panel.getScreenWidth() / 2 - game_panel.getTileSize() / 2;
+        on_screen_y = game_panel.getScreenHeight() / 2 - game_panel.getTileSize() / 2;
+
         this.hit_box = new Rectangle(8, 16, 32, 32);
+        default_hit_box_x = hit_box.x;
+        default_hit_box_y = hit_box.y;
+
         this.setDefault();
         this.getPlayerImage();
     }
@@ -61,8 +66,14 @@ public class Player extends Entity {
                 this.direction = "right";
             }
 
-            this.can_collide = false;
-            this.game_panel.getCollisionHandler().checkTileCollision(this);
+            // Check tile collision
+            can_collide = false;
+            game_panel.getCollisionHandler().checkTileCollision(this);
+
+            // Check object collision
+            int object_index = game_panel.getCollisionHandler().checkObjectCollision(this, true);
+            pickUpObject(object_index);
+
             if (!this.can_collide) {
                 switch (this.direction) {
                     case "up":
@@ -91,6 +102,27 @@ public class Player extends Entity {
             this.image_counter = 0;
         }
 
+    }
+
+    public void pickUpObject(int idx) {
+
+        if (idx != Integer.MAX_VALUE){
+
+            String object_name = game_panel.getObjects()[idx].name;
+
+            switch (object_name) {
+                case "door":
+                    if(has_key > 0) {
+                        game_panel.getObjects()[idx] = null;
+                        has_key--;
+                    }
+                    break;
+                case "key":
+                    has_key++;
+                    game_panel.getObjects()[idx] = null;
+                    break;
+            }
+        }
     }
 
     public void draw(Graphics2D graphics2D) {
