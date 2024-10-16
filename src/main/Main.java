@@ -1,13 +1,14 @@
 package main;
 
 import java.awt.Component;
+import java.io.IOException;
 import javax.swing.JFrame;
 
 public class Main {
     public Main() {
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         JFrame window = new JFrame();
 
         window.setDefaultCloseOperation(3);

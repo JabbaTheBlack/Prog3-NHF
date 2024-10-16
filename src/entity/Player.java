@@ -5,7 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.io.IOException;
+import java.io.*;
+import java.util.spi.AbstractResourceBundleProvider;
 import javax.imageio.ImageIO;
 import main.GamePanel;
 import main.KeyHandler;
@@ -17,7 +18,7 @@ public class Player extends Entity {
     public final int on_screen_y;
     int has_key = 0;
 
-    public Player(GamePanel game_panel, KeyHandler key_handler) {
+    public Player(GamePanel game_panel, KeyHandler key_handler) throws IOException {
         this.game_panel = game_panel;
         this.key_handler = key_handler;
         on_screen_x = game_panel.getScreenWidth() / 2 - game_panel.getTileSize() / 2;
@@ -31,10 +32,63 @@ public class Player extends Entity {
         this.getPlayerImage();
     }
 
-    public void setDefault() {
-        this.global_x = this.game_panel.getTileSize() * 23;
-        this.global_y = this.game_panel.getTileSize() * 21;
+    public void setDefault() throws IOException {
+        try{
+            loadPosition();
+        }catch(Exception e){}
+
         this.speed = 4;
+    }
+
+    public void savePosition() throws IOException{
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter("last_position.txt"));
+            writer.write(global_x + " " + global_y);
+            writer.newLine();  // This will add a new line in the file
+            writer.flush();    // Ensure the data is written to the file
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (writer != null) {
+                writer.close();  // Close the writer to free system resources
+            }
+        }
+    }
+
+    public void loadPosition() throws IOException{
+        File file = new File("last_position.txt");
+        if (file.exists()) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+                if (br.ready()) {
+                    String[] position = br.readLine().split(" ");
+
+                    // Ensure we have exactly two elements (X and Y positions)
+                    if (position.length == 2) {
+                        try {
+                            global_x = Integer.parseInt(position[0]);
+                            global_y = Integer.parseInt(position[1]);
+                            System.out.println("Position loaded: (" + global_x + ", " + global_y + ")");
+                            return;
+                        } catch (NumberFormatException e) {
+                            // If the values aren't integers, fall back to default
+                            System.out.println("Invalid position format. Setting default values.");
+                        }
+                    } else {
+                        System.out.println("Position data is incomplete. Setting default values.");
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();  // Handle any IO exception
+            }
+        } else {
+            System.out.println("Position file not found. Setting default values.");
+        }
+
+        // Set default position if file doesn't exist or data is invalid
+        global_x = game_panel.getTileSize() * 23;  // Default X position
+        global_y = game_panel.getTileSize() * 21;  // Default Y position
+        System.out.println("Default position set: (" + global_x + ", " + global_y + ")");
     }
 
     public void getPlayerImage() {

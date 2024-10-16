@@ -1,11 +1,12 @@
 package main;
 
 import entity.Player;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import javax.swing.JPanel;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import javax.swing.*;
 
 import object.Object_Base;
 import tiles.Manager;
@@ -32,7 +33,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     int FPS;
 
-    public GamePanel() {
+    public GamePanel() throws IOException {
         this.player = new Player(this, this.key_handler);
         this.collision_handler = new CollisionHandler(this);
         this.FPS = 60;
@@ -96,6 +97,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void run() {
+
         double draw_interval = (double)(1000000000 / this.FPS);
         double delta = 0.0;
         long last_time = System.nanoTime();
@@ -118,6 +120,45 @@ public class GamePanel extends JPanel implements Runnable {
         this.player.update();
     }
 
+    public void openPauseMenu() {
+        // Create a new JFrame for the pause menu
+        JFrame pauseMenu = new JFrame("Pause Menu");
+        pauseMenu.setSize(300, 200);
+        pauseMenu.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Close only the menu
+        pauseMenu.setUndecorated(true); // Removes window border
+
+        // Center the pause menu on the game screen
+        pauseMenu.setLocationRelativeTo(null);
+
+        // Create a JPanel for the buttons
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(2, 1)); // One column, two rows
+
+        // Create the "Exit Game" button
+        JButton exitButton = new JButton("Exit Game");
+        exitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    player.savePosition();
+                }catch(IOException exception){
+                    exception.printStackTrace();
+                }
+
+                System.exit(0); // Exit the game
+            }
+        });
+
+        // Add the "Exit Game" button to the panel
+        panel.add(exitButton);
+
+        // Add the panel to the JFrame
+        pauseMenu.add(panel);
+
+        // Make the JFrame visible
+        pauseMenu.setVisible(true);
+    }
+
     public void paintComponent(Graphics graphics) {
 
         super.paintComponent(graphics);
@@ -131,6 +172,11 @@ public class GamePanel extends JPanel implements Runnable {
              if(object != null) {
                  object.draw(graphics2D, this);
              }
+        }
+
+        if (key_handler.esc) {
+            openPauseMenu();
+            key_handler.esc = false;
         }
 
         // Draw the player
